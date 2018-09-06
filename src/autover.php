@@ -25,13 +25,14 @@ function autover_version_filter( $src ) {
 		return $src;
 	}
 
-	$file_paths = [  rtrim( ABSPATH, '/' ) . urldecode( $url_parts['path'] ) ,
- 					 rtrim(str_replace("/wp-content","",WP_CONTENT_DIR), '/' ) . urldecode( $url_parts['path'] )
-				 ];
+	$file_paths = [ ABSPATH, str_replace("/wp-content", "", WP_CONTENT_DIR) ];
+
+	$file_paths = apply_filters("autover_paths", $file_paths);
 
 	foreach ($file_paths as $path) {
-		if (is_file($path)) {
-			$file_path = $path;
+		$hypothetical = rtrim($path, '/') . urldecode( $url_parts['path'] );
+		if (is_file($hypothetical)) {
+			$file_path = $hypothetical;
 		}
 	}
 
@@ -71,3 +72,4 @@ function autover_build_url( array $parts ) {
 		   ( isset( $parts['query'] ) ? "?{$parts['query']}" : '' ) .
 		   ( isset( $parts['fragment'] ) ? "#{$parts['fragment']}" : '' );
 }
+
