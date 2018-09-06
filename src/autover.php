@@ -13,6 +13,7 @@
 add_filter( 'style_loader_src', 'autover_version_filter' );
 add_filter( 'script_loader_src', 'autover_version_filter' );
 function autover_version_filter( $src ) {
+	$src = remove_query_arg( 'ver', $src );
 	$url_parts = wp_parse_url( $src );
 
 	$extension = pathinfo( $url_parts['path'], PATHINFO_EXTENSION );
@@ -24,8 +25,17 @@ function autover_version_filter( $src ) {
 		return $src;
 	}
 
-	$file_path = rtrim( ABSPATH, '/' ) . urldecode( $url_parts['path'] );
-	if ( ! is_file( $file_path ) ) {
+	$file_paths = [  rtrim( ABSPATH, '/' ) . urldecode( $url_parts['path'] ) ,
+ 					 rtrim(str_replace("/wp-content","",WP_CONTENT_DIR), '/' ) . urldecode( $url_parts['path'] )
+				 ];
+
+	foreach ($file_paths as $path) {
+		if (is_file($path)) {
+			$file_path = $path;
+		}
+	}
+
+	if ( empty($file_path) || ! is_file( $file_path ) ) {
 		return $src;
 	}
 
